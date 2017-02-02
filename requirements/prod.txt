@@ -1,0 +1,2 @@
+-r common.txt
+waitress==1.0.0
