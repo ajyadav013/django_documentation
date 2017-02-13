@@ -1,0 +1,74 @@
+imp points:
+
+
+1). AGGREGATORS and ANNOTATIONS
+https://docs.djangoproject.com/en/1.10/topics/db/aggregation/
+
+
+aggregators and annotations are similar but aggregator works on  group of objects and yields the result as a dictionary but annotate performs operations on a per objects basis and returns a queryset so as to perform multiple further operations to it.
+Annotate uses joins instead of sub queries therefore annotate on multiple fields would result wrong result(we can perform multiple op. like filter etc but on a single one)
+eg:- aggregate
+Book.objects.aggregate(average_price=Avg('price'))
+result:-
+{'average_price': 34.35}
+
+multiple aggregate:
+Book.objects.aggregate(Avg('price'), Max('price'), Min('price'))
+result:-
+{'price__avg': 34.35, 'price__max': Decimal('81.20'), 'price__min': Decimal('12.99')}
+
+annotate:
+q = Book.objects.annotate(Count('authors')) // here q is a queryset
+q[0].authors__count
+
+multiple annotate:-
+q = Book.objects.annotate(Count('authors'), Count('store')) // this will give wrong results
+
+A distint parameter may help prevent the problem for 'Count' aggregator.
+eg:-q = Book.objects.annotate(Count('authors', distinct=True), Count('store', distinct=True))
+
+
+We can apply filters on both aggregators n annotations... :p but only before.. eg:-
+>>> Book.objects.filter(name__startswith="Django").annotate(num_authors=Count('authors'))
+>>> Book.objects.filter(name__startswith="Django").aggregate(Avg('price'))
+
+When used with an annotate() clause, a filter has the effect of constraining the objects FOR which an annotation is calculated. For example, you can generate an annotated list of all books that have a title starting with “Django” using the above query.
+
+When used with an aggregate() clause, a filter has the effect of constraining the objects OVER which the aggregate is calculated. For example, you can generate the average price of all books with a title that starts with “Django” using the above query.
+
+Annotated values can also be filtered. The alias for the annotation can be used in filter() and exclude() clauses in the same way as any other model field.
+
+For example, to generate a list of books that have more than one author, you can issue the query:
+>>> Book.objects.annotate(num_authors=Count('authors')).filter(num_authors__gt=1)
+
+
+Order of annotate() and filter() clauses
+Given:
+
+Publisher A has two books with ratings 4 and 5.
+Publisher B has two books with ratings 1 and 4.
+Publisher C has one book with rating 1.
+
+
+>>> a, b = Publisher.objects.annotate(num_books=Count('book', distinct=True)).filter(book__rating__gt=3.0)
+>>> a, a.num_books
+(<Publisher: A>, 2)
+>>> b, b.num_books
+(<Publisher: B>, 2)
+
+>>> a, b = Publisher.objects.filter(book__rating__gt=3.0).annotate(num_books=Count('book'))
+>>> a, a.num_books
+(<Publisher: A>, 2)
+>>> b, b.num_books
+(<Publisher: B>, 1)
+
+
+.
+.
+.
+.
+rest more imp pts on the webpage...link provided with title
+
+
+2). Trying to inherit from more than one class that inherits from View 
+
