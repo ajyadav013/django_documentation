@@ -8,6 +8,7 @@
      {% endfor %}
      </ul> -->
 <h1>{{ question.question_text }}</h1>
+<h1>Context custom variable added {{ boom }}</h1>
 {% if error_message %}
 <p><strong>{{ error_message }}</strong></p>
 {% endif %}
@@ -22,4 +23,5 @@
 </form>
 {% else %}
 <p><strong>No Choices</strong></p>
+<a href="polls/question/"{{question.id}}><p>Make Choices?</p></a>
 {% endif %}
